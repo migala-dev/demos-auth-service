@@ -34,25 +34,12 @@ module.exports = router;
  *           schema:
  *             type: object
  *             required:
- *               - name
- *               - email
- *               - password
+ *               - phoneNumber
  *             properties:
- *               name:
+ *               phoneNumber:
  *                 type: string
- *               email:
- *                 type: string
- *                 format: email
- *                 description: must be unique
- *               password:
- *                 type: string
- *                 format: password
- *                 minLength: 8
- *                 description: At least one number and one letter
  *             example:
- *               name: fake name
- *               email: fake@example.com
- *               password: password1
+ *               phoneNumber: +5255555555555
  *     responses:
  *       "201":
  *         description: Created

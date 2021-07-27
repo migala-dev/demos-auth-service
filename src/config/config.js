@@ -8,6 +8,8 @@ const envVarsSchema = Joi.object()
   .keys({
     NODE_ENV: Joi.string().valid('production', 'development', 'test').required(),
     PORT: Joi.number().default(3000),
+    AWS_USER_POOL_ID: Joi.string().required().description('AWS Cognito - User pool id'),
+    AWS_CLIENT_ID: Joi.string().required().description('AWS Cognito - Client Id'),
   })
   .unknown();
 
@@ -20,4 +22,6 @@ if (error) {
 module.exports = {
   env: envVars.NODE_ENV,
   port: envVars.PORT,
+  awsUserPoolId: envVars.AWS_USER_POOL_ID,
+  awsClientId: envVars.AWS_CLIENT_ID,
 };
