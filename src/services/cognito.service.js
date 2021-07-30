@@ -11,6 +11,17 @@ const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
  * @returns {Promise<User>}
  */
 const signUp = async (phoneNumber, password) => {
+    const [user, err] = await signUpCognito(phoneNumber, password);
+
+    if (err) {
+        throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err.message || JSON.stringify(err));
+    }
+
+    return user;
+};
+
+
+const signUpCognito = (phoneNumber, password,) => {
     var attributeList = [];
 
     var dataPhoneNumber = {
@@ -21,23 +32,16 @@ const signUp = async (phoneNumber, password) => {
     var attributePhoneNumber = new AmazonCognitoIdentity.CognitoUserAttribute(
         dataPhoneNumber
     );
-
     attributeList.push(attributePhoneNumber);
-    const user = await new Promise(res => {
-        cognito.signUp(phoneNumber, password, attributeList, null, function (
-            err,
-            result
-        ) {
-            if (err) {
-                throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err.message || JSON.stringify(err));
-            }
-            console.log(result);
-            res(result.user);
-        });
-    });
+    return new Promise(res => {
+        cognito.signUp(phoneNumber, password, attributeList, null,
+            (err, result) => {
+                const user = result ? result.user : null;
+                res([user, err]);
+            });
+    })
+}
 
-    return user;
-};
 
 module.exports = {
     signUp,
