@@ -1,7 +1,6 @@
 const httpStatus = require('http-status');
 const catchAsync = require('../utils/catchAsync');
-const { authService, cognitoService, tokenService } = require('../services');
-const { required } = require('joi');
+const { authService, cognitoService } = require('../services');
 
 const register = catchAsync(async (req, res) => {
   const { phoneNumber } = req.body;
@@ -10,10 +9,15 @@ const register = catchAsync(async (req, res) => {
 });
 
 const login = catchAsync(async (req, res) => {
-  const { email, password } = req.body;
-  const user = await authService.loginUserWithEmailAndPassword(email, password);
-  const tokens = await tokenService.generateAuthTokens(user);
-  res.send({ user, tokens });
+  const { phoneNumber } = req.body;
+  const user = await cognitoService.signIn(phoneNumber);
+  res.status(httpStatus.CREATED).send({ user });
+});
+
+const verifyCode = catchAsync(async (req, res) => {
+  const { phoneNumber, code } = req.body;
+  const tokens = await cognitoService.verifyCode(phoneNumber, code);
+  res.status(httpStatus.CREATED).send(tokens);
 });
 
 const logout = catchAsync(async (req, res) => {
@@ -26,10 +30,10 @@ const refreshTokens = catchAsync(async (req, res) => {
   res.send({ ...tokens });
 });
 
-
 module.exports = {
   register,
   login,
+  verifyCode,
   logout,
   refreshTokens,
 };
