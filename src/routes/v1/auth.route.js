@@ -5,7 +5,6 @@ const authController = require('../../controllers/auth.controller');
 
 const router = express.Router();
 
-router.post('/register', validate(authValidation.register), authController.register);
 router.post('/login', validate(authValidation.login), authController.login);
 router.post('/verify-code', validate(authValidation.verifyCode), authController.verifyCode);
 router.post('/refresh-tokens', validate(authValidation.refreshTokens), authController.refreshTokens);
@@ -17,41 +16,6 @@ module.exports = router;
  * tags:
  *   name: Auth
  *   description: Authentication
- */
-
-/**
- * @swagger
- * /auth/register:
- *   post:
- *     summary: Register as user
- *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - phoneNumber
- *             properties:
- *               phoneNumber:
- *                 type: string
- *             example:
- *               phoneNumber: +5255555555555
- *     responses:
- *       "201":
- *         description: Created
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 user:
- *                   $ref: '#/components/schemas/User'
- *                 tokens:
- *                   $ref: '#/components/schemas/AuthTokens'
- *       "400":
- *         $ref: '#/components/responses/DuplicateEmail'
  */
 
 /**
@@ -116,7 +80,7 @@ module.exports = router;
  *                 type: number
  *             example:
  *               phoneNumber: +526545384736
- *               session: d8da9-sda psdjka0s9da0skda0oskd0a9skdpaoskd09askd0a-sdkasd
+ *               session: AYABeHqDCI8U6VyuZV9IvPz17-EAHQABAAdTZXJ2aWNlABBDb2duaXRvVXNlclBvb2xzAAEAB2F3cy1rbXMAS2Fybjphd3M6a21zOnVzLWVhc3QtMTo3NDU2MjM0Njc1NTU6a2V5
  *               code: 82933
  *     responses:
  *       "200":

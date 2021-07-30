@@ -25,7 +25,7 @@ components:
         session:
           type: string
       example:
-        session: asdasdlkalsdkalskdaopsodkpasokdpla
+        session: AYABeHqDCI8U6VyuZV9IvPz17-EAHQABAAdTZXJ2aWNlABBDb2duaXRvVXNlclBvb2xzAAEAB2F3cy1rbXMAS2Fybjphd3M6a21zOnVzLWVhc3QtMTo3NDU2MjM0Njc1NTU6a2V5
 
     Token:
       type: object

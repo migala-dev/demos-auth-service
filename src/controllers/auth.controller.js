@@ -2,22 +2,16 @@ const httpStatus = require('http-status');
 const catchAsync = require('../utils/catchAsync');
 const { cognitoService } = require('../services');
 
-const register = catchAsync(async (req, res) => {
-  const { phoneNumber } = req.body;
-  const user = await cognitoService.signUp(phoneNumber);
-  res.status(httpStatus.CREATED).send({ user });
-});
-
 const login = catchAsync(async (req, res) => {
   const { phoneNumber } = req.body;
-  const user = await cognitoService.signIn(phoneNumber);
-  res.status(httpStatus.CREATED).send({ user });
+  const session = await cognitoService.signIn(phoneNumber);
+  res.status(httpStatus.OK).send(session);
 });
 
 const verifyCode = catchAsync(async (req, res) => {
-  const { phoneNumber, code } = req.body;
-  const tokens = await cognitoService.verifyCode(phoneNumber, code);
-  res.status(httpStatus.CREATED).send(tokens);
+  const { phoneNumber, code, session } = req.body;
+  const tokens = await cognitoService.verifyCode(phoneNumber, code, session);
+  res.status(httpStatus.OK).send(tokens);
 });
 
 const refreshTokens = catchAsync(async (req, res) => {
@@ -26,7 +20,6 @@ const refreshTokens = catchAsync(async (req, res) => {
 });
 
 module.exports = {
-  register,
   login,
   verifyCode,
   refreshTokens,

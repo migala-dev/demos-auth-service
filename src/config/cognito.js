@@ -7,4 +7,23 @@ const poolData = {
 };
 const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 
-module.exports = userPool;
+const getCognitoUser = (phoneNumber) => {
+  const userData = {
+    Username: phoneNumber,
+    Pool: userPool,
+  };
+  return new AmazonCognitoIdentity.CognitoUser(userData);
+};
+
+const getAuthenticationDetails = (phoneNumber) => {
+  const authenticationData = {
+    Username: phoneNumber,
+  };
+  return new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
+};
+
+module.exports = {
+  userPool,
+  getCognitoUser,
+  getAuthenticationDetails,
+};

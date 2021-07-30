@@ -16,6 +16,7 @@ const verifyCode = {
   body: Joi.object().keys({
     phoneNumber: Joi.string().required(),
     code: Joi.string().required(),
+    session: Joi.string().required(),
   }),
 };
 
