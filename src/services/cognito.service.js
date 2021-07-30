@@ -1,4 +1,5 @@
 const httpStatus = require('http-status');
+const { v4: uuidv4 } = require('uuid');
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 const ApiError = require('../utils/ApiError');
 const config = require('../config/config');
@@ -9,9 +10,9 @@ const poolData = {
 };
 const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 
-const signUpCognito = (phoneNumber, password) => {
+const signUpCognito = (phoneNumber) => {
+  const password = uuidv4();
   const attributeList = [];
-
   const dataPhoneNumber = {
     Name: 'phone_number',
     Value: phoneNumber,
@@ -28,13 +29,12 @@ const signUpCognito = (phoneNumber, password) => {
 };
 
 /**
- * signUp phoneNumber and password
+ * signUp phoneNumber
  * @param {string} phoneNumber
- * @param {string} password
  * @returns {Promise<User>}
  */
-const signUp = async (phoneNumber, password) => {
-  const [user, err] = await signUpCognito(phoneNumber, password);
+const signUp = async (phoneNumber) => {
+  const [user, err] = await signUpCognito(phoneNumber);
 
   if (err) {
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err.message || JSON.stringify(err));
@@ -44,7 +44,7 @@ const signUp = async (phoneNumber, password) => {
 };
 let _session;
 /**
- * signIn phoneNumber and password
+ * signIn phoneNumber
  * @param {string} phoneNumber
  * @returns {Promise<User>}
  */

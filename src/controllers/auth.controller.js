@@ -4,7 +4,7 @@ const { cognitoService } = require('../services');
 
 const register = catchAsync(async (req, res) => {
   const { phoneNumber } = req.body;
-  const user = await cognitoService.signUp(phoneNumber, 'password');
+  const user = await cognitoService.signUp(phoneNumber);
   res.status(httpStatus.CREATED).send({ user });
 });
 
