@@ -19,6 +19,14 @@ components:
         name: fake name
         role: user
 
+    LoginResponse:
+      type: object
+      properties:
+        session:
+          type: string
+      example:
+        session: asdasdlkalsdkalskdaopsodkpasokdpla
+
     Token:
       type: object
       properties:

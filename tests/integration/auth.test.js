@@ -3,7 +3,6 @@ const faker = require('faker');
 const httpStatus = require('http-status');
 const httpMocks = require('node-mocks-http');
 const moment = require('moment');
-const bcrypt = require('bcryptjs');
 const app = require('../../src/app');
 const config = require('../../src/config/config');
 const auth = require('../../src/middlewares/auth');
@@ -234,74 +233,45 @@ describe('Auth routes', () => {
     });
   });
 
-    test('should return 401 if user is not found', async () => {
-      const expires = moment().add(config.jwt.resetPasswordExpirationMinutes, 'minutes');
-      const resetPasswordToken = tokenService.generateToken(userOne._id, expires, tokenTypes.RESET_PASSWORD);
-      await tokenService.saveToken(resetPasswordToken, userOne._id, expires, tokenTypes.RESET_PASSWORD);
+  test('should return 401 if user is not found', async () => {
+    const expires = moment().add(config.jwt.resetPasswordExpirationMinutes, 'minutes');
+    const resetPasswordToken = tokenService.generateToken(userOne._id, expires, tokenTypes.RESET_PASSWORD);
+    await tokenService.saveToken(resetPasswordToken, userOne._id, expires, tokenTypes.RESET_PASSWORD);
 
-      await request(app)
-        .post('/v1/auth/reset-password')
-        .query({ token: resetPasswordToken })
-        .send({ password: 'password2' })
-        .expect(httpStatus.UNAUTHORIZED);
-    });
-
-    test('should return 400 if password is missing or invalid', async () => {
-      await insertUsers([userOne]);
-      const expires = moment().add(config.jwt.resetPasswordExpirationMinutes, 'minutes');
-      const resetPasswordToken = tokenService.generateToken(userOne._id, expires, tokenTypes.RESET_PASSWORD);
-      await tokenService.saveToken(resetPasswordToken, userOne._id, expires, tokenTypes.RESET_PASSWORD);
-
-      await request(app).post('/v1/auth/reset-password').query({ token: resetPasswordToken }).expect(httpStatus.BAD_REQUEST);
-
-      await request(app)
-        .post('/v1/auth/reset-password')
-        .query({ token: resetPasswordToken })
-        .send({ password: 'short1' })
-        .expect(httpStatus.BAD_REQUEST);
-
-      await request(app)
-        .post('/v1/auth/reset-password')
-        .query({ token: resetPasswordToken })
-        .send({ password: 'password' })
-        .expect(httpStatus.BAD_REQUEST);
-
-      await request(app)
-        .post('/v1/auth/reset-password')
-        .query({ token: resetPasswordToken })
-        .send({ password: '11111111' })
-        .expect(httpStatus.BAD_REQUEST);
-    });
+    await request(app)
+      .post('/v1/auth/reset-password')
+      .query({ token: resetPasswordToken })
+      .send({ password: 'password2' })
+      .expect(httpStatus.UNAUTHORIZED);
   });
 
-  describe('POST /v1/auth/send-verification-email', () => {
-    beforeEach(() => {
-      jest.spyOn(emailService.transport, 'sendMail').mockResolvedValue();
-    });
+  test('should return 400 if password is missing or invalid', async () => {
+    await insertUsers([userOne]);
+    const expires = moment().add(config.jwt.resetPasswordExpirationMinutes, 'minutes');
+    const resetPasswordToken = tokenService.generateToken(userOne._id, expires, tokenTypes.RESET_PASSWORD);
+    await tokenService.saveToken(resetPasswordToken, userOne._id, expires, tokenTypes.RESET_PASSWORD);
 
-    test('should return 204 and send verification email to the user', async () => {
-      await insertUsers([userOne]);
-      const sendVerificationEmailSpy = jest.spyOn(emailService, 'sendVerificationEmail');
+    await request(app).post('/v1/auth/reset-password').query({ token: resetPasswordToken }).expect(httpStatus.BAD_REQUEST);
 
-      await request(app)
-        .post('/v1/auth/send-verification-email')
-        .set('Authorization', `Bearer ${userOneAccessToken}`)
-        .expect(httpStatus.NO_CONTENT);
+    await request(app)
+      .post('/v1/auth/reset-password')
+      .query({ token: resetPasswordToken })
+      .send({ password: 'short1' })
+      .expect(httpStatus.BAD_REQUEST);
 
-      expect(sendVerificationEmailSpy).toHaveBeenCalledWith(userOne.email, expect.any(String));
-      const verifyEmailToken = sendVerificationEmailSpy.mock.calls[0][1];
-      const dbVerifyEmailToken = await Token.findOne({ token: verifyEmailToken, user: userOne._id });
+    await request(app)
+      .post('/v1/auth/reset-password')
+      .query({ token: resetPasswordToken })
+      .send({ password: 'password' })
+      .expect(httpStatus.BAD_REQUEST);
 
-      expect(dbVerifyEmailToken).toBeDefined();
-    });
-
-    test('should return 401 error if access token is missing', async () => {
-      await insertUsers([userOne]);
-
-      await request(app).post('/v1/auth/send-verification-email').send().expect(httpStatus.UNAUTHORIZED);
-    });
+    await request(app)
+      .post('/v1/auth/reset-password')
+      .query({ token: resetPasswordToken })
+      .send({ password: '11111111' })
+      .expect(httpStatus.BAD_REQUEST);
   });
-
+});
 
 describe('Auth middleware', () => {
   test('should call next with no errors if access token is valid', async () => {
