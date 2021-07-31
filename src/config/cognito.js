@@ -22,8 +22,13 @@ const getAuthenticationDetails = (phoneNumber) => {
   return new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
 };
 
+const getCognitoRefreshToken = (refreshToken) => {
+  return new AmazonCognitoIdentity.CognitoRefreshToken({ RefreshToken: refreshToken });
+};
+
 module.exports = {
   userPool,
   getCognitoUser,
   getAuthenticationDetails,
+  getCognitoRefreshToken,
 };

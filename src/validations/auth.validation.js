@@ -1,11 +1,5 @@
 const Joi = require('joi');
 
-const register = {
-  body: Joi.object().keys({
-    phoneNumber: Joi.string().required(),
-  }),
-};
-
 const login = {
   body: Joi.object().keys({
     phoneNumber: Joi.string().required(),
@@ -15,14 +9,8 @@ const login = {
 const verifyCode = {
   body: Joi.object().keys({
     phoneNumber: Joi.string().required(),
-    code: Joi.string().required(),
+    code: Joi.number().required(),
     session: Joi.string().required(),
-  }),
-};
-
-const logout = {
-  body: Joi.object().keys({
-    refreshToken: Joi.string().required(),
   }),
 };
 
@@ -33,9 +21,7 @@ const refreshTokens = {
 };
 
 module.exports = {
-  register,
   login,
   verifyCode,
-  logout,
   refreshTokens,
 };

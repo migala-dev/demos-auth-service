@@ -15,8 +15,9 @@ const verifyCode = catchAsync(async (req, res) => {
 });
 
 const refreshTokens = catchAsync(async (req, res) => {
-  // const tokens = await authService.refreshAuth(req.body.refreshToken);
-  res.send({});
+  const { refreshToken } = req.body;
+  const tokens = await authService.refreshAuth(refreshToken);
+  res.status(httpStatus.OK).send(tokens);
 });
 
 module.exports = {

@@ -52,7 +52,23 @@ const verifyCode = async (phoneNumber, answerChallenge, session) => {
   return result;
 };
 
+/**
+ * refreshToken
+ * @param {string} refreshToken
+ * @returns {Promise<Token>}
+ */
+const refreshAuth = async (refreshToken) => {
+  const [result, err] = await cognito.refreshAuth(refreshToken);
+
+  if (err) {
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err.message || JSON.stringify(err));
+  }
+
+  return result;
+};
+
 module.exports = {
   signIn,
   verifyCode,
+  refreshAuth,
 };

@@ -28,23 +28,19 @@ components:
         session: AYABeHqDCI8U6VyuZV9IvPz17-EAHQABAAdTZXJ2aWNlABBDb2duaXRvVXNlclBvb2xzAAEAB2F3cy1rbXMAS2Fybjphd3M6a21zOnVzLWVhc3QtMTo3NDU2MjM0Njc1NTU6a2V5
 
     Token:
-      type: object
-      properties:
-        token:
-          type: string
-        expires:
-          type: string
-          format: date-time
-      example:
-        token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZWJhYzUzNDk1NGI1NDEzOTgwNmMxMTIiLCJpYXQiOjE1ODkyOTg0ODQsImV4cCI6MTU4OTMwMDI4NH0.m1U63blB0MLej_WfB7yC2FTMnCziif9X8yzwDEfJXAg
-        expires: 2020-05-12T16:18:04.793Z
+      type: string
+      example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZWJhYzUzNDk1NGI1NDEzOTgwNmMxMTIiLCJpYXQiOjE1ODkyOTg0ODQsImV4cCI6MTU4OTMwMDI4NH0.m1U63blB0MLej_WfB7yC2FTMnCziif9X8yzwDEfJXAg
+
 
     AuthTokens:
       type: object
+      
       properties:
-        access:
+        accessToken:
           $ref: '#/components/schemas/Token'
-        refresh:
+        idToken:
+          $ref: '#/components/schemas/Token'
+        refreshToken:
           $ref: '#/components/schemas/Token'
 
     Error:

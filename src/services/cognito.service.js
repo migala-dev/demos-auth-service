@@ -1,6 +1,14 @@
 const { v4: uuidv4 } = require('uuid');
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
-const { userPool, getCognitoUser, getAuthenticationDetails } = require('../config/cognito');
+const { userPool, getCognitoUser, getAuthenticationDetails, getCognitoRefreshToken } = require('../config/cognito');
+
+const getTokenFromSession = (session) => {
+  const accessToken = session.getAccessToken().getJwtToken();
+  const idToken = session.getIdToken().getJwtToken();
+  const refreshToken = session.getRefreshToken().getToken();
+
+  return { accessToken, idToken, refreshToken };
+};
 
 const signUp = (phoneNumber) => {
   const password = uuidv4();
@@ -43,12 +51,10 @@ const verifyCode = (phoneNumber, answerChallenge, session) => {
   cognitoUser.setAuthenticationFlowType('CUSTOM_AUTH');
   cognitoUser.Session = session;
   return new Promise((res) => {
-    cognitoUser.sendCustomChallengeAnswer(answerChallenge, {
+    cognitoUser.sendCustomChallengeAnswer(answerChallenge.toString(), {
       onSuccess: (result) => {
-        const accessToken = result.getAccessToken().getJwtToken();
-        const idToken = result.getIdToken().getJwtToken();
-        const refreshToken = result.getRefreshToken().getToken();
-        res([{ accessToken, idToken, refreshToken }]);
+        const tokens = getTokenFromSession(result);
+        res([tokens]);
       },
       onFailure: (err) => {
         res([null, err]);
@@ -57,8 +63,20 @@ const verifyCode = (phoneNumber, answerChallenge, session) => {
   });
 };
 
+const refreshAuth = (refreshToken) => {
+  const cognitoUser = getCognitoUser('');
+  const cognitoRefreshToken = getCognitoRefreshToken(refreshToken);
+  return new Promise((res) => {
+    cognitoUser.refreshSession(cognitoRefreshToken, (err, session) => {
+      const tokens = session ? getTokenFromSession(session) : null;
+      res([tokens, err]);
+    });
+  });
+};
+
 module.exports = {
   signUp,
   signIn,
   verifyCode,
+  refreshAuth,
 };

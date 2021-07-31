@@ -124,6 +124,13 @@ module.exports = router;
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/AuthTokens'
- *       "401":
- *         $ref: '#/components/responses/Unauthorized'
+ *       "500":
+ *          description: Invalid Refresh Token
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#/components/schemas/Error'
+ *                  example:
+ *                      code: 500
+ *                      message: Invalid Refresh Token
  */
