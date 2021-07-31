@@ -1,10 +1,8 @@
-const httpStatus = require('http-status');
 const { v4: uuidv4 } = require('uuid');
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
-const ApiError = require('../utils/ApiError');
 const { userPool, getCognitoUser, getAuthenticationDetails } = require('../config/cognito');
 
-const signUpCognito = (phoneNumber) => {
+const signUp = (phoneNumber) => {
   const password = uuidv4();
   const attributeList = [];
   const dataPhoneNumber = {
@@ -22,17 +20,7 @@ const signUpCognito = (phoneNumber) => {
   });
 };
 
-const signUp = async (phoneNumber) => {
-  const [user, err] = await signUpCognito(phoneNumber);
-
-  if (err) {
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err.message || JSON.stringify(err));
-  }
-
-  return user;
-};
-
-const signInCognito = (phoneNumber) => {
+const signIn = (phoneNumber) => {
   const authenticationDetails = getAuthenticationDetails(phoneNumber);
   const cognitoUser = getCognitoUser(phoneNumber);
   cognitoUser.setAuthenticationFlowType('CUSTOM_AUTH');
@@ -50,30 +38,7 @@ const signInCognito = (phoneNumber) => {
   });
 };
 
-const userNotExist = (message) => {
-  return message.includes('User does not exist');
-};
-
-/**
- * signIn phoneNumber
- * @param {string} phoneNumber
- * @returns {Promise<{ session }>}
- */
-const signIn = async (phoneNumber) => {
-  const [result, err] = await signInCognito(phoneNumber);
-
-  if (err) {
-    if (userNotExist(err.message)) {
-      await signUp(phoneNumber);
-      return signIn(phoneNumber);
-    }
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err.message || JSON.stringify(err));
-  }
-
-  return result;
-};
-
-const verifyCodeCognito = (phoneNumber, answerChallenge, session) => {
+const verifyCode = (phoneNumber, answerChallenge, session) => {
   const cognitoUser = getCognitoUser(phoneNumber);
   cognitoUser.setAuthenticationFlowType('CUSTOM_AUTH');
   cognitoUser.Session = session;
@@ -91,24 +56,9 @@ const verifyCodeCognito = (phoneNumber, answerChallenge, session) => {
     });
   });
 };
-/**
- * verifyCode phoneNumber and answerChallenge and session
- * @param {string} phoneNumber
- * @param {string} answerChallenge
- * @param {string} session
- * @returns {Promise<Token>}
- */
-const verifyCode = async (phoneNumber, answerChallenge, session) => {
-  const [result, err] = await verifyCodeCognito(phoneNumber, answerChallenge, session);
-
-  if (err) {
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err.message || JSON.stringify(err));
-  }
-
-  return result;
-};
 
 module.exports = {
+  signUp,
   signIn,
   verifyCode,
 };
