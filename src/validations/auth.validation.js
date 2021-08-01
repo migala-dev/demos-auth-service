@@ -1,14 +1,18 @@
 const Joi = require('joi');
 
+const phoneNumberValidation = Joi.string()
+  .regex(/^\+[1-9]{1}[0-9]{3,14}$/)
+  .required();
+
 const login = {
   body: Joi.object().keys({
-    phoneNumber: Joi.string().required(),
+    phoneNumber: phoneNumberValidation,
   }),
 };
 
 const verifyCode = {
   body: Joi.object().keys({
-    phoneNumber: Joi.string().required(),
+    phoneNumber: phoneNumberValidation,
     code: Joi.number().required(),
     session: Joi.string().required(),
   }),
