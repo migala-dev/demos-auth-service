@@ -4,10 +4,9 @@ const { userPool, getCognitoUser, getAuthenticationDetails, getCognitoRefreshTok
 
 const getTokenFromSession = (session) => {
   const accessToken = session.getAccessToken().getJwtToken();
-  const idToken = session.getIdToken().getJwtToken();
   const refreshToken = session.getRefreshToken().getToken();
 
-  return { accessToken, idToken, refreshToken };
+  return { accessToken, refreshToken };
 };
 
 const signUp = (phoneNumber) => {

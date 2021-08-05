@@ -58,9 +58,41 @@ describe('Auth routes', () => {
       const phoneNumber = 'adssssddd';
       const loginCredentials = { phoneNumber };
 
-      failMethods.setErrors({ userNotExist: true });
-
       await request(app).post('/v1/auth/login').send(loginCredentials).expect(httpStatus.BAD_REQUEST);
+    });
+  });
+
+  describe('POST /v1/auth/verify-code', () => {
+    test('should return 200 and tokens, if user send a valid phone number, code and session', async () => {
+      const phoneNumber = '+526666666666';
+      const session = 'session-mock-token';
+      const code = 120293;
+      const params = { phoneNumber, session, code };
+
+      const res = await request(app).post('/v1/auth/verify-code').send(params).expect(httpStatus.OK);
+
+      expect(res.body).toStrictEqual({
+        accessToken: 'jwt-token-mock',
+        refreshToken: 'refresh-token-mock',
+      });
+    });
+
+    test('should return 400 error if user send an invalid phone number', async () => {
+      const phoneNumber = 'adssssddd';
+      const session = 'session-mock-token';
+      const code = 120293;
+      const params = { phoneNumber, session, code };
+
+      await request(app).post('/v1/auth/verify-code').send(params).expect(httpStatus.BAD_REQUEST);
+    });
+
+    test('should return 500 error if it is an invalid session', async () => {
+      const phoneNumber = '+526666666666';
+      const session = 'session-mock-token-2';
+      const code = 120293;
+      const params = { phoneNumber, session, code };
+
+      await request(app).post('/v1/auth/verify-code').send(params).expect(httpStatus.INTERNAL_SERVER_ERROR);
     });
   });
 });
