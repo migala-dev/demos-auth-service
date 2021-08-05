@@ -10,8 +10,8 @@ const login = catchAsync(async (req, res) => {
 
 const verifyCode = catchAsync(async (req, res) => {
   const { phoneNumber, code, session } = req.body;
-  const tokens = await authService.verifyCode(phoneNumber, code, session);
-  res.status(httpStatus.OK).send(tokens);
+  const response = await authService.verifyCode(phoneNumber, code, session);
+  res.status(httpStatus.OK).send(response);
 });
 
 const refreshTokens = catchAsync(async (req, res) => {

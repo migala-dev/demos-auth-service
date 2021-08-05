@@ -3,21 +3,25 @@ components:
     User:
       type: object
       properties:
-        id:
-          type: string
-        email:
-          type: string
-          format: email
+        user_id:
+          type: number
+        phone:
+          type: number
         name:
           type: string
-        role:
+        profilePictureUrl:
           type: string
-          enum: [user, admin]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
       example:
-        id: 5ebac534954b54139806c112
-        email: fake@example.com
+        user_id: 1
+        phone: '+273333773883'
         name: fake name
-        role: user
+        profilePictureUrl: https://radomurl.com/id-photo
+        createdAt: '2021-08-04 22:49:49.906226'
+        updatedAt: '2021-08-04 22:49:49.906226'
 
     LoginResponse:
       type: object
@@ -34,11 +38,8 @@ components:
 
     AuthTokens:
       type: object
-      
       properties:
         accessToken:
-          $ref: '#/components/schemas/Token'
-        idToken:
           $ref: '#/components/schemas/Token'
         refreshToken:
           $ref: '#/components/schemas/Token'

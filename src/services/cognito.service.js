@@ -1,12 +1,21 @@
 const { v4: uuidv4 } = require('uuid');
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 const { userPool, getCognitoUser, getAuthenticationDetails, getCognitoRefreshToken } = require('../config/cognito');
+const { User } = require('../models');
+const { UserRepository } = require('../models/repositories');
 
 const getTokenFromSession = (session) => {
   const accessToken = session.getAccessToken().getJwtToken();
   const refreshToken = session.getRefreshToken().getToken();
 
   return { accessToken, refreshToken };
+};
+
+const createUser = (phoneNumber) => {
+  const user = new User();
+  user.phone = phoneNumber;
+
+  return UserRepository.save(user);
 };
 
 const signUp = (phoneNumber) => {
@@ -20,9 +29,14 @@ const signUp = (phoneNumber) => {
   const attributePhoneNumber = new AmazonCognitoIdentity.CognitoUserAttribute(dataPhoneNumber);
   attributeList.push(attributePhoneNumber);
   return new Promise((res) => {
-    userPool.signUp(phoneNumber, password, attributeList, null, (err, result) => {
-      const user = result ? result.user : null;
-      res([user, err]);
+    userPool.signUp(phoneNumber, password, attributeList, null, (err) => {
+      if (!err) {
+        createUser(phoneNumber).then((user) => {
+          res([user, null]);
+        });
+      } else {
+        res([null, err]);
+      }
     });
   });
 };
@@ -45,6 +59,13 @@ const signIn = (phoneNumber) => {
   });
 };
 
+const getUserByPhoneNumber = (phoneNumber) => {
+  const user = new User();
+  user.phone = phoneNumber;
+
+  return UserRepository.find(user);
+};
+
 const verifyCode = (phoneNumber, answerChallenge, session) => {
   const cognitoUser = getCognitoUser(phoneNumber);
   cognitoUser.setAuthenticationFlowType('CUSTOM_AUTH');
@@ -53,7 +74,9 @@ const verifyCode = (phoneNumber, answerChallenge, session) => {
     cognitoUser.sendCustomChallengeAnswer(answerChallenge.toString(), {
       onSuccess: (result) => {
         const tokens = getTokenFromSession(result);
-        res([tokens]);
+        getUserByPhoneNumber(phoneNumber).then((user) => {
+          res([{ user, tokens }]);
+        });
       },
       onFailure: (err) => {
         res([null, err]);
