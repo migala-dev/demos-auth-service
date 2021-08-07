@@ -1,7 +1,7 @@
 CREATE TABLE users (
     user_id SERIAL,
     name varchar(255),
-    phone varchar(255) not null,
+    phone_number varchar(255) not null,
     profile_picture_url varchar(255),
     created_at timestamp not null default CURRENT_TIMESTAMP,
     updated_at timestamp not null default CURRENT_TIMESTAMP,

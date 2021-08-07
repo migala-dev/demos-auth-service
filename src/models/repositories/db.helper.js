@@ -1,5 +1,49 @@
 const { Client } = require('pg');
 
+function convertPropNameToColumnNotation(fieldName) {
+  return fieldName
+    .replace(/\.?([A-Z])/g, function (x, y) {
+      return `_${y.toLowerCase()}`;
+    })
+    .replace(/^_/, '');
+}
+
+function isPropertyEmpty(value) {
+  return value === '' || value === null || value === undefined;
+}
+
+function getColumnsAndValues(object) {
+  const columns = [];
+  const values = [];
+  Object.keys(object).forEach((key) => {
+    if (!isPropertyEmpty(object[key])) {
+      const columnName = convertPropNameToColumnNotation(key);
+      const value = object[key];
+      columns.push(columnName);
+      values.push(value);
+    }
+  });
+
+  return [columns, values];
+}
+
+function convertPropNameToCamelCase(name) {
+  return name.replace(/_([a-z])/g, function (g) {
+    return g[1].toUpperCase();
+  });
+}
+
+function mapObjectToCamelCased(object) {
+  const newObject = {};
+  Object.keys(object).forEach((key) => {
+    const property = convertPropNameToCamelCase(key);
+    const value = object[key];
+    newObject[property] = value;
+  });
+
+  return newObject;
+}
+
 class DbHelper {
   constructor() {
     this.entityName = '';
@@ -8,7 +52,7 @@ class DbHelper {
 
   async find(object) {
     this._validateObject(object);
-    const [columns, values] = this._getColumnsAndValues(object);
+    const [columns, values] = getColumnsAndValues(object);
     if (columns.length > 0) {
       const client = new Client();
       await client.connect();
@@ -17,14 +61,14 @@ class DbHelper {
         .join(' AND ')}`;
       const res = await client.query(query, values);
       await client.end();
-      return res.rows[0];
+      return mapObjectToCamelCased(res.rows[0]);
     }
     throw Error('No values to save');
   }
 
   async save(object) {
     this._validateObject(object);
-    const [columns, values] = this._getColumnsAndValues(object);
+    const [columns, values] = getColumnsAndValues(object);
     if (columns.length > 0) {
       const client = new Client();
       await client.connect();
@@ -33,7 +77,7 @@ class DbHelper {
         .join(',')}) RETURNING *`;
       const res = await client.query(query, values);
       await client.end();
-      return res.rows[0];
+      return mapObjectToCamelCased(res.rows[0]);
     }
     throw Error('No values to save');
   }
@@ -46,33 +90,6 @@ class DbHelper {
 
   _isAValidObject(object) {
     return object && object.constructor && object.constructor.name === this.entityName;
-  }
-
-  _getColumnsAndValues(object) {
-    const columns = [];
-    const values = [];
-    Object.keys(object).forEach((key) => {
-      if (!this._isPropertyEmpty(object[key])) {
-        const columnName = this._convertPropNameToColumnNotation(key);
-        const value = object[key];
-        columns.push(columnName);
-        values.push(value);
-      }
-    });
-
-    return [columns, values];
-  }
-
-  static _convertPropNameToColumnNotation(fieldName) {
-    return fieldName
-      .replace(/\.?([A-Z])/g, function (x, y) {
-        return `_${y.toLowerCase()}`;
-      })
-      .replace(/^_/, '');
-  }
-
-  static _isPropertyEmpty(value) {
-    return value === '' || value === null || value === undefined;
   }
 }
 

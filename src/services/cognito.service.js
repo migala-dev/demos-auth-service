@@ -13,7 +13,7 @@ const getTokenFromSession = (session) => {
 
 const createUser = (phoneNumber) => {
   const user = new User();
-  user.phone = phoneNumber;
+  user.phoneNumber = phoneNumber;
 
   return UserRepository.save(user);
 };
@@ -61,7 +61,7 @@ const signIn = (phoneNumber) => {
 
 const getUserByPhoneNumber = (phoneNumber) => {
   const user = new User();
-  user.phone = phoneNumber;
+  user.phoneNumber = phoneNumber;
 
   return UserRepository.find(user);
 };

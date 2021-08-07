@@ -2,7 +2,7 @@ class User {
   constructor() {
     this.id = '';
     this.name = '';
-    this.phone = '';
+    this.phoneNumber = '';
     this.profilePictureUrl = '';
     this.createdAt = undefined;
     this.updatedAt = undefined;
