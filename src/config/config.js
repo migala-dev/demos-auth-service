@@ -10,6 +10,7 @@ const envVarsSchema = Joi.object()
     PORT: Joi.number().default(3000),
     AWS_USER_POOL_ID: Joi.string().required().description('AWS Cognito - User pool id'),
     AWS_CLIENT_ID: Joi.string().required().description('AWS Cognito - Client Id'),
+    AWS_REGION: Joi.string().required().description('AWS Cognito - Region'),
     PGHOST: Joi.string().required().description('PostgresSQL - Host'),
     PGUSER: Joi.string().required().description('PostgresSQL - User'),
     PGDATABASE: Joi.string().required().description('PostgresSQL - Database'),
@@ -26,8 +27,11 @@ if (error) {
 module.exports = {
   env: envVars.NODE_ENV,
   port: envVars.PORT,
-  awsUserPoolId: envVars.AWS_USER_POOL_ID,
-  awsClientId: envVars.AWS_CLIENT_ID,
+  aws: {
+    region: envVars.AWS_REGION,
+    userPoolId: envVars.AWS_USER_POOL_ID,
+    clientId: envVars.AWS_CLIENT_ID,
+  },
   pg: {
     host: envVars.PGHOST,
     user: envVars.PGUSER,

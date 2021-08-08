@@ -48,9 +48,10 @@ class DbHelper {
   constructor() {
     this.entityName = '';
     this.tableName = '';
+    this.colId = '';
   }
 
-  async find(object) {
+  async findOne(object) {
     this._validateObject(object);
     const [columns, values] = getColumnsAndValues(object);
     if (columns.length > 0) {
@@ -66,7 +67,7 @@ class DbHelper {
     throw Error('No values to save');
   }
 
-  async save(object) {
+  async create(object) {
     this._validateObject(object);
     const [columns, values] = getColumnsAndValues(object);
     if (columns.length > 0) {
@@ -75,6 +76,22 @@ class DbHelper {
       const query = `INSERT INTO ${this.tableName}(${columns.join(',')}) VALUES(${columns
         .map((c, index) => `$${index + 1}`)
         .join(',')}) RETURNING *`;
+      const res = await client.query(query, values);
+      await client.end();
+      return mapObjectToCamelCased(res.rows[0]);
+    }
+    throw Error('No values to create');
+  }
+
+  async save(id, object) {
+    this._validateObject(object);
+    const [columns, values] = getColumnsAndValues(object);
+    if (columns.length > 0) {
+      const client = new Client();
+      await client.connect();
+      const query = `UPDATE ${this.tableName} 
+        SET ${columns.map((column, index) => `${column} = $${index + 1}`).join(' ')}
+        WHERE ${this.colId} = ${id} RETURNING *`;
       const res = await client.query(query, values);
       await client.end();
       return mapObjectToCamelCased(res.rows[0]);

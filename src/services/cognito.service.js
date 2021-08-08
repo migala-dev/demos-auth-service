@@ -11,11 +11,12 @@ const getTokenFromSession = (session) => {
   return { accessToken, refreshToken };
 };
 
-const createUser = (phoneNumber) => {
+const createUser = (phoneNumber, cognitoId) => {
   const user = new User();
   user.phoneNumber = phoneNumber;
+  user.cognitoId = cognitoId;
 
-  return UserRepository.save(user);
+  return UserRepository.create(user);
 };
 
 const signUp = (phoneNumber) => {
@@ -29,9 +30,10 @@ const signUp = (phoneNumber) => {
   const attributePhoneNumber = new AmazonCognitoIdentity.CognitoUserAttribute(dataPhoneNumber);
   attributeList.push(attributePhoneNumber);
   return new Promise((res) => {
-    userPool.signUp(phoneNumber, password, attributeList, null, (err) => {
+    userPool.signUp(phoneNumber, password, attributeList, null, (err, result) => {
+      const cognitoId = result.userSub;
       if (!err) {
-        createUser(phoneNumber).then((user) => {
+        createUser(phoneNumber, cognitoId).then((user) => {
           res([user, null]);
         });
       } else {
@@ -63,7 +65,7 @@ const getUserByPhoneNumber = (phoneNumber) => {
   const user = new User();
   user.phoneNumber = phoneNumber;
 
-  return UserRepository.find(user);
+  return UserRepository.findOne(user);
 };
 
 const verifyCode = (phoneNumber, answerChallenge, session) => {

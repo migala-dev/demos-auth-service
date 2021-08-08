@@ -6,6 +6,7 @@ class UserRepository extends DbHelper {
     super();
     this.entityName = User.name;
     this.tableName = 'users';
+    this.colId = 'user_id';
   }
 }
 
