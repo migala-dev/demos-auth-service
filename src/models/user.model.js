@@ -1,6 +1,6 @@
 class User {
   constructor() {
-    this.id = '';
+    this.userId = '';
     this.name = '';
     this.phoneNumber = '';
     this.profilePictureUrl = '';

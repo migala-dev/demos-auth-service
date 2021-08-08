@@ -3,23 +3,26 @@ components:
     User:
       type: object
       properties:
-        user_id:
+        userId:
           type: number
-        phone:
-          type: number
+        phoneNumber:
+          type: string
         name:
           type: string
         profilePictureUrl:
+          type: string
+        cognitoId:
           type: string
         createdAt:
           type: string
         updatedAt:
           type: string
       example:
-        user_id: 1
-        phone: '+273333773883'
+        userId: 1
+        phoneNumber: '+273333773883'
         name: fake name
-        profilePictureUrl: https://radomurl.com/id-photo
+        profilePictureUrl: 'https://radomurl.com/id-photo'
+        cognitoId: '0d28c258-3bef-4cac-b04f-66a5488f94f6'
         createdAt: '2021-08-04 22:49:49.906226'
         updatedAt: '2021-08-04 22:49:49.906226'
 
