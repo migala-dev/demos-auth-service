@@ -27,6 +27,10 @@ function getColumnsAndValues(object) {
   return [columns, values];
 }
 
+function getPgClient() {
+  return new Client({ ssl: { rejectUnauthorized: false } });
+}
+
 function convertPropNameToCamelCase(name) {
   return name.replace(/_([a-z])/g, function (g) {
     return g[1].toUpperCase();
@@ -55,7 +59,7 @@ class DbHelper {
     this._validateObject(object);
     const [columns, values] = getColumnsAndValues(object);
     if (columns.length > 0) {
-      const client = new Client();
+      const client = getPgClient();
       await client.connect();
       const query = `SELECT * FROM ${this.tableName} WHERE ${columns
         .map((column, index) => `${column} = $${index + 1}`)
@@ -71,7 +75,7 @@ class DbHelper {
     this._validateObject(object);
     const [columns, values] = getColumnsAndValues(object);
     if (columns.length > 0) {
-      const client = new Client();
+      const client = getPgClient();
       await client.connect();
       const query = `INSERT INTO ${this.tableName}(${columns.join(',')}) VALUES(${columns
         .map((c, index) => `$${index + 1}`)
@@ -87,7 +91,7 @@ class DbHelper {
     this._validateObject(object);
     const [columns, values] = getColumnsAndValues(object);
     if (columns.length > 0) {
-      const client = new Client();
+      const client = getPgClient();
       await client.connect();
       const query = `UPDATE ${this.tableName} 
         SET ${columns.map((column, index) => `${column} = $${index + 1}`).join(' ')}

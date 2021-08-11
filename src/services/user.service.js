@@ -16,7 +16,7 @@ const getUserByCognitoId = async (cognitoId) => {
 
 /**
  * Update user by cognito id
- * @param {ObjectId} userId
+ * @param {ObjectId} cognitoId
  * @param {Object} updateBody
  * @returns {Promise<User>}
  */
@@ -32,7 +32,27 @@ const updateUserByCognitoId = async (cognitoId, { name }) => {
   return user;
 };
 
+/**
+ * Upload an avatar image
+ * @param {String} cognitoId
+ * @param {File} file
+ * @returns {Promise<String>}
+ */
+const uploadAvatarImage = async (cognitoId, file) => {
+  const user = await getUserByCognitoId(cognitoId);
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+  }
+  const profilePictureKey = file.key;
+  Object.assign(user, { profilePictureKey });
+  const userToUpdate = new User();
+  userToUpdate.profilePictureKey = profilePictureKey;
+  await UserRepository.save(user.userId, userToUpdate);
+  return user;
+};
+
 module.exports = {
   getUserByCognitoId,
   updateUserByCognitoId,
+  uploadAvatarImage,
 };
