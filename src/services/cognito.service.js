@@ -74,6 +74,10 @@ const verifyCode = (phoneNumber, answerChallenge, session) => {
   cognitoUser.Session = session;
   return new Promise((res) => {
     cognitoUser.sendCustomChallengeAnswer(answerChallenge.toString(), {
+      customChallenge() {
+        const currentSession = cognitoUser.Session;
+        res([{ session: currentSession }]);
+      },
       onSuccess: (result) => {
         const tokens = getTokenFromSession(result);
         getUserByPhoneNumber(phoneNumber).then((user) => {
