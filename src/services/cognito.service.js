@@ -3,6 +3,7 @@ const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 const { userPool, getCognitoUser, getAuthenticationDetails, getCognitoRefreshToken } = require('../config/cognito');
 const { User } = require('../models');
 const { UserRepository } = require('../models/repositories');
+const config = require('../config/config');
 
 const getTokenFromSession = (session) => {
   const accessToken = session.getAccessToken().getJwtToken();
@@ -81,7 +82,8 @@ const verifyCode = (phoneNumber, answerChallenge, session) => {
       onSuccess: (result) => {
         const tokens = getTokenFromSession(result);
         getUserByPhoneNumber(phoneNumber).then((user) => {
-          res([{ user, tokens }]);
+          const { bucket } = config.aws;
+          res([{ user, tokens, bucketName: bucket }]);
         });
       },
       onFailure: (err) => {

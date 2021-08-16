@@ -2,6 +2,9 @@ const httpStatus = require('http-status');
 const { User } = require('../models');
 const { UserRepository } = require('../models/repositories');
 const ApiError = require('../utils/ApiError');
+const { s3 } = require('../config/s3');
+const config = require('../config/config');
+const logger = require('../config/logger');
 
 /**
  * Get user by cognito id
@@ -32,6 +35,21 @@ const updateUserByCognitoId = async (cognitoId, { name }) => {
   return user;
 };
 
+const removeOldImage = (imageKey) => {
+  s3.deleteObject(
+    {
+      Bucket: config.aws.bucket,
+      Key: imageKey,
+    },
+    function (err) {
+      if (err) {
+        logger.error(`Can not delete: ${imageKey}`);
+        logger.error(`${err}`);
+      }
+    }
+  );
+};
+
 /**
  * Upload an avatar image
  * @param {String} cognitoId
@@ -43,11 +61,13 @@ const uploadAvatarImage = async (cognitoId, file) => {
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
   }
+  const oldImageKey = user.profilePictureKey;
   const profilePictureKey = file.key;
   Object.assign(user, { profilePictureKey });
   const userToUpdate = new User();
   userToUpdate.profilePictureKey = profilePictureKey;
   await UserRepository.save(user.userId, userToUpdate);
+  removeOldImage(oldImageKey);
   return user;
 };
 

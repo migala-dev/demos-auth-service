@@ -3,12 +3,12 @@ const auth = require('../../middlewares/auth');
 const validate = require('../../middlewares/validate');
 const userValidation = require('../../validations/user.validation');
 const userController = require('../../controllers/user.controller');
-const uploadS3 = require('../../config/s3');
+const { uploadAvatarS3 } = require('../../config/s3');
 
 const router = express.Router();
 
 router.route('/').patch(auth(), validate(userValidation.updateUser), userController.updateUser);
-router.route('/avatar').post(auth(), uploadS3.single('file'), userController.updateProfilePicture);
+router.route('/avatar').post(auth(), uploadAvatarS3.single('file'), userController.updateProfilePicture);
 
 module.exports = router;
 
