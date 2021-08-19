@@ -90,6 +90,8 @@ module.exports = router;
  *             schema:
  *               type: object
  *               properties:
+ *                 bucketName:
+ *                    type: string
  *                 user:
  *                   $ref: '#/components/schemas/User'
  *                 tokens:

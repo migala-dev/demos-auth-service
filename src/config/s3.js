@@ -20,9 +20,13 @@ const uploadAvatarS3 = multer({
       const cognitoId = req.user.username;
       const splitFileName = file.originalname.split('.');
       const extension = splitFileName[splitFileName.length - 1];
-      cb(null, `avatars/${cognitoId}.${extension}`);
+      const randomNumber = new Date().getTime().toString().substr(9);
+      cb(null, `avatars/${cognitoId}.${randomNumber}.${extension}`);
     },
   }),
 });
 
-module.exports = uploadAvatarS3;
+module.exports = {
+  s3,
+  uploadAvatarS3,
+};
