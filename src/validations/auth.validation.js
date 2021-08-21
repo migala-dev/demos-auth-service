@@ -1,15 +1,15 @@
 const Joi = require('joi');
-const { phoneNumberValidation } = require('../shared/validations/custom.validation');
+const { phoneNumber } = require('../shared/validations/custom.validation');
 
 const login = {
   body: Joi.object().keys({
-    phoneNumber: phoneNumberValidation,
+    phoneNumber,
   }),
 };
 
 const verifyCode = {
   body: Joi.object().keys({
-    phoneNumber: phoneNumberValidation,
+    phoneNumber,
     code: Joi.number().required(),
     session: Joi.string().required(),
   }),
