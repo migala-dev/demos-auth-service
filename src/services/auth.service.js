@@ -13,7 +13,7 @@ const signUp = async (phoneNumber) => {
 };
 
 const userNotExist = (message) => {
-  return message.includes('User does not exist');
+  return message.includes('User does not exist.');
 };
 
 /**
