@@ -1,8 +1,8 @@
 const { v4: uuidv4 } = require('uuid');
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 const { userPool, getCognitoUser, getAuthenticationDetails, getCognitoRefreshToken } = require('../config/cognito');
-const { User } = require('../models');
-const { UserRepository } = require('../models/repositories');
+const { User } = require('../shared/models');
+const { UserRepository } = require('../shared/repositories');
 const config = require('../config/config');
 
 const getTokenFromSession = (session) => {

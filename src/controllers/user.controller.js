@@ -1,6 +1,6 @@
 const httpStatus = require('http-status');
-const ApiError = require('../utils/ApiError');
-const catchAsync = require('../utils/catchAsync');
+const ApiError = require('../shared/utils/ApiError');
+const catchAsync = require('../shared/utils/catchAsync');
 const { userService } = require('../services');
 
 const updateUser = catchAsync(async (req, res) => {

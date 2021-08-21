@@ -1,5 +1,5 @@
 const httpStatus = require('http-status');
-const catchAsync = require('../utils/catchAsync');
+const catchAsync = require('../shared/utils/catchAsync');
 const { authService } = require('../services');
 
 const login = catchAsync(async (req, res) => {

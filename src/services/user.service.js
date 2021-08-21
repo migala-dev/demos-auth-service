@@ -1,10 +1,10 @@
 const httpStatus = require('http-status');
-const { User } = require('../models');
-const { UserRepository } = require('../models/repositories');
-const ApiError = require('../utils/ApiError');
+const { User } = require('../shared/models');
+const { UserRepository } = require('../shared/repositories');
+const ApiError = require('../shared/utils/ApiError');
 const { s3 } = require('../config/s3');
 const config = require('../config/config');
-const logger = require('../config/logger');
+const logger = require('../shared/config/logger');
 
 /**
  * Get user by cognito id

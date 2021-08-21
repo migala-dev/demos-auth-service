@@ -1,8 +1,5 @@
 const Joi = require('joi');
-
-const phoneNumberValidation = Joi.string()
-  .regex(/^\+[1-9]{1}[0-9]{3,14}$/)
-  .required();
+const { phoneNumberValidation } = require('../shared/validations/custom.validation');
 
 const login = {
   body: Joi.object().keys({

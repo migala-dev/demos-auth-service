@@ -1,6 +1,6 @@
 const httpStatus = require('http-status');
 const cognito = require('./cognito.service');
-const ApiError = require('../utils/ApiError');
+const ApiError = require('../shared/utils/ApiError');
 
 const signUp = async (phoneNumber) => {
   const [user, err] = await cognito.signUp(phoneNumber);

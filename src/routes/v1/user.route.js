@@ -1,6 +1,6 @@
 const express = require('express');
-const auth = require('../../middlewares/auth');
-const validate = require('../../middlewares/validate');
+const auth = require('../../shared/middlewares/auth');
+const validate = require('../../shared/middlewares/validate');
 const userValidation = require('../../validations/user.validation');
 const userController = require('../../controllers/user.controller');
 const { uploadAvatarS3 } = require('../../config/s3');
