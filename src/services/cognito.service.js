@@ -51,7 +51,11 @@ const signIn = (phoneNumber) => {
 
   return new Promise((res) => {
     cognitoUser.initiateAuth(authenticationDetails, {
-      customChallenge: () => {
+      customChallenge: async ({ USERNAME: cognitoId }) => {
+        const user = await UserRepository.findOneByCognitoId(cognitoId);
+        if (!user) {
+          createUser(phoneNumber, cognitoId);
+        }
         const session = cognitoUser.Session;
         res([{ session }, null]);
       },
@@ -60,13 +64,6 @@ const signIn = (phoneNumber) => {
       },
     });
   });
-};
-
-const getUserByPhoneNumber = (phoneNumber) => {
-  const user = new User();
-  user.phoneNumber = phoneNumber;
-
-  return UserRepository.findOne(user);
 };
 
 const verifyCode = (phoneNumber, answerChallenge, session) => {
@@ -81,7 +78,7 @@ const verifyCode = (phoneNumber, answerChallenge, session) => {
       },
       onSuccess: (result) => {
         const tokens = getTokenFromSession(result);
-        getUserByPhoneNumber(phoneNumber).then((user) => {
+        UserRepository.findOneByPhoneNumber(phoneNumber).then((user) => {
           const { bucket } = config.aws;
           res([{ user, tokens, bucketName: bucket }]);
         });

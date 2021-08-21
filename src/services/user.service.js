@@ -7,24 +7,13 @@ const config = require('../config/config');
 const logger = require('../shared/config/logger');
 
 /**
- * Get user by cognito id
- * @param {string} cognitoId
- * @returns {Promise<User>}
- */
-const getUserByCognitoId = async (cognitoId) => {
-  const user = new User();
-  user.cognitoId = cognitoId;
-  return UserRepository.findOne(user);
-};
-
-/**
  * Update user by cognito id
  * @param {ObjectId} cognitoId
  * @param {Object} updateBody
  * @returns {Promise<User>}
  */
 const updateUserByCognitoId = async (cognitoId, { name }) => {
-  const user = await getUserByCognitoId(cognitoId);
+  const user = await UserRepository.findOneByCognitoId(cognitoId);
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
   }
@@ -57,7 +46,7 @@ const removeOldImage = (imageKey) => {
  * @returns {Promise<String>}
  */
 const uploadAvatarImage = async (cognitoId, file) => {
-  const user = await getUserByCognitoId(cognitoId);
+  const user = await UserRepository.findOneByCognitoId(cognitoId);
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
   }
@@ -72,7 +61,6 @@ const uploadAvatarImage = async (cognitoId, file) => {
 };
 
 module.exports = {
-  getUserByCognitoId,
   updateUserByCognitoId,
   uploadAvatarImage,
 };
