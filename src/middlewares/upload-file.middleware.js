@@ -1,12 +1,7 @@
-const AWS = require('aws-sdk');
 const multer = require('multer');
 const multers3 = require('multer-s3');
-const config = require('./config');
-
-const s3 = new AWS.S3({
-  accessKeyId: config.aws.accessKeyId,
-  secretAccessKey: config.aws.secretAccessKey,
-});
+const config = require('../config/config');
+const s3 = require('../shared/config/s3');
 
 const uploadAvatarS3 = multer({
   storage: multers3({
@@ -27,6 +22,5 @@ const uploadAvatarS3 = multer({
 });
 
 module.exports = {
-  s3,
   uploadAvatarS3,
 };

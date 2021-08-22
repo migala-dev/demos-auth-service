@@ -3,7 +3,7 @@ const auth = require('../../shared/middlewares/auth');
 const validate = require('../../shared/middlewares/validate');
 const userValidation = require('../../validations/user.validation');
 const userController = require('../../controllers/user.controller');
-const { uploadAvatarS3 } = require('../../config/s3');
+const { uploadAvatarS3 } = require('../../middlewares/upload-file.middleware');
 
 const router = express.Router();
 
