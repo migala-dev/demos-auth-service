@@ -77,11 +77,11 @@ module.exports = router;
  *               session:
  *                 type: string
  *               code:
- *                 type: number
+ *                 type: string
  *             example:
  *               phoneNumber: +526545384736
  *               session: AYABeHqDCI8U6VyuZV9IvPz17-EAHQABAAdTZXJ2aWNlABBDb2duaXRvVXNlclBvb2xzAAEAB2F3cy1rbXMAS2Fybjphd3M6a21zOnVzLWVhc3QtMTo3NDU2MjM0Njc1NTU6a2V5
- *               code: 82933
+ *               code: "82933"
  *     responses:
  *       "200":
  *         description: OK

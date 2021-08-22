@@ -10,7 +10,7 @@ const login = {
 const verifyCode = {
   body: Joi.object().keys({
     phoneNumber,
-    code: Joi.number().required(),
+    code: Joi.string().length(6).required(),
     session: Joi.string().required(),
   }),
 };
