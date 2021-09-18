@@ -86,3 +86,14 @@ CREATE TRIGGER set_timestamp_role_user_space
 BEFORE UPDATE ON role_user_space
 FOR EACH ROW
 EXECUTE FUNCTION trigger_set_timestamp();
+
+CREATE TABLE cache (
+    cache_id uuid DEFAULT uuid_generate_v4 (),
+    user_id uuid  NOT NULL,
+    entity_name varchar(255),
+    event_name varchar(255),
+    data varchar(MAX),
+    created_at timestamp not null default CURRENT_TIMESTAMP,
+	PRIMARY KEY(cache_id)
+);
+
