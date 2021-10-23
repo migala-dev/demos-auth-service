@@ -20,6 +20,14 @@ const createUser = (phoneNumber, cognitoId) => {
   return UserRepository.create(user);
 };
 
+const setUserCognitoId = (userId, cognitoId, phoneNumber) => {
+  const user = new User();
+  user.phoneNumber = phoneNumber;
+  user.cognitoId = cognitoId;
+
+  return UserRepository.save(userId, user);
+}
+
 const signUp = (phoneNumber) => {
   const password = uuidv4();
   const attributeList = [];
@@ -31,12 +39,19 @@ const signUp = (phoneNumber) => {
   const attributePhoneNumber = new AmazonCognitoIdentity.CognitoUserAttribute(dataPhoneNumber);
   attributeList.push(attributePhoneNumber);
   return new Promise((res) => {
-    userPool.signUp(phoneNumber, password, attributeList, null, (err, result) => {
+    userPool.signUp(phoneNumber, password, attributeList, null, async (err, result) => {
       const cognitoId = result.userSub;
       if (!err) {
-        createUser(phoneNumber, cognitoId).then((user) => {
-          res([user, null]);
-        });
+        const existingUser = await UserRepository.findOneByPhoneNumber(phoneNumber);
+        if(!existingUser) {
+          createUser(phoneNumber, cognitoId).then((user) => {
+            res([user, null]);
+          });
+        } else {
+          existingUser.cognitoId = cognitoId;
+          setUserCognitoId(existingUser.userId, cognitoId, phoneNumber);
+          res([existingUser, null]);
+        }
       } else {
         res([null, err]);
       }
@@ -54,7 +69,12 @@ const signIn = (phoneNumber) => {
       customChallenge: async ({ USERNAME: cognitoId }) => {
         const user = await UserRepository.findOneByCognitoId(cognitoId);
         if (!user) {
-          createUser(phoneNumber, cognitoId);
+          const existingUser = await UserRepository.findOneByPhoneNumber(phoneNumber);
+          if(!existingUser) {
+            createUser(phoneNumber, cognitoId);
+          } else if(!existingUser.cognitoId) {
+            setUserCognitoId(existingUser.userId, cognitoId, phoneNumber);
+          }
         }
         const session = cognitoUser.Session;
         res([{ session }, null]);
