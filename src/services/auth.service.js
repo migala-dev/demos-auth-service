@@ -1,19 +1,40 @@
 const httpStatus = require('http-status');
-const cognito = require('./cognito.service');
+const cognitoService = require('./cognito.service');
 const ApiError = require('../shared/utils/ApiError');
+const { User } = require('../shared/models');
+const { UserRepository } = require('../shared/repositories');
 
-const signUp = async (phoneNumber) => {
-  const [user, err] = await cognito.signUp(phoneNumber);
+const createUser = (phoneNumber, cognitoId) => {
+  const user = new User();
+  user.phoneNumber = phoneNumber;
+  user.cognitoId = cognitoId;
 
-  if (err) {
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err.message || JSON.stringify(err));
-  }
-
-  return user;
+  return UserRepository.create(user);
 };
 
-const userNotExist = (message) => {
-  return message.includes('User does not exist.');
+const setUserCognitoId = (userId, cognitoId, phoneNumber) => {
+  const user = new User();
+  user.phoneNumber = phoneNumber;
+  user.cognitoId = cognitoId;
+
+  return UserRepository.save(userId, user);
+};
+
+const signUp = async (phoneNumber) => {
+  try {
+    const cognitoId = await cognitoService.signUp(phoneNumber);
+    const existingUser = await UserRepository.findOneByPhoneNumber(phoneNumber);
+    if (!existingUser) {
+      const user = await createUser(phoneNumber, cognitoId);
+      return user;
+    } else {
+      existingUser.cognitoId = cognitoId;
+      setUserCognitoId(existingUser.userId, cognitoId, phoneNumber);
+      return existingUser;
+    }
+  } catch (err) {
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err?.message || JSON.stringify(err));
+  }
 };
 
 /**
@@ -22,17 +43,27 @@ const userNotExist = (message) => {
  * @returns {Promise<{ session }>}
  */
 const signIn = async (phoneNumber) => {
-  const [result, err] = await cognito.signIn(phoneNumber);
+  try {
+    const { session, cognitoId } = await cognitoService.signIn(phoneNumber);
 
-  if (err) {
-    if (userNotExist(err.message)) {
+    if (!cognitoId) {
       await signUp(phoneNumber);
       return signIn(phoneNumber);
+    } else {
+      const user = await UserRepository.findOneByCognitoId(cognitoId);
+      if (!user) {
+        const existingUser = await UserRepository.findOneByPhoneNumber(phoneNumber);
+        if (!existingUser) {
+          createUser(phoneNumber, cognitoId);
+        } else if (!existingUser.cognitoId) {
+          setUserCognitoId(existingUser.userId, cognitoId, phoneNumber);
+        }
+      }
     }
+    return { session };
+  } catch (err) {
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err.message || JSON.stringify(err));
   }
-
-  return result;
 };
 
 /**
@@ -43,13 +74,14 @@ const signIn = async (phoneNumber) => {
  * @returns {Promise<Token>}
  */
 const verifyCode = async (phoneNumber, answerChallenge, session) => {
-  const [result, err] = await cognito.verifyCode(phoneNumber, answerChallenge, session);
+  try {
+    const { tokens, bucketName } = await cognitoService.verifyCode(phoneNumber, answerChallenge, session);
+    const user = await UserRepository.findOneByPhoneNumber(phoneNumber);
 
-  if (err) {
+    return { tokens, bucketName, user };
+  } catch (err) {
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err.message || JSON.stringify(err));
   }
-
-  return result;
 };
 
 /**
@@ -58,13 +90,11 @@ const verifyCode = async (phoneNumber, answerChallenge, session) => {
  * @returns {Promise<Token>}
  */
 const refreshAuth = async (refreshToken) => {
-  const [result, err] = await cognito.refreshAuth(refreshToken);
-
-  if (err) {
+  try {
+    return await cognitoService.refreshAuth(refreshToken);
+  } catch (err) {
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err.message || JSON.stringify(err));
   }
-
-  return result;
 };
 
 module.exports = {

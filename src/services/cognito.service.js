@@ -1,8 +1,6 @@
 const { v4: uuidv4 } = require('uuid');
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 const { userPool, getCognitoUser, getAuthenticationDetails, getCognitoRefreshToken } = require('../config/cognito');
-const { User } = require('../shared/models');
-const { UserRepository } = require('../shared/repositories');
 const config = require('../config/config');
 
 const getTokenFromSession = (session) => {
@@ -12,22 +10,6 @@ const getTokenFromSession = (session) => {
   return { accessToken, refreshToken };
 };
 
-const createUser = (phoneNumber, cognitoId) => {
-  const user = new User();
-  user.phoneNumber = phoneNumber;
-  user.cognitoId = cognitoId;
-
-  return UserRepository.create(user);
-};
-
-const setUserCognitoId = (userId, cognitoId, phoneNumber) => {
-  const user = new User();
-  user.phoneNumber = phoneNumber;
-  user.cognitoId = cognitoId;
-
-  return UserRepository.save(userId, user);
-}
-
 const signUp = (phoneNumber) => {
   const password = uuidv4();
   const attributeList = [];
@@ -35,28 +17,23 @@ const signUp = (phoneNumber) => {
     Name: 'phone_number',
     Value: phoneNumber,
   };
-
   const attributePhoneNumber = new AmazonCognitoIdentity.CognitoUserAttribute(dataPhoneNumber);
   attributeList.push(attributePhoneNumber);
-  return new Promise((res) => {
-    userPool.signUp(phoneNumber, password, attributeList, null, async (err, result) => {
+
+  return new Promise((res, rej) => {
+    userPool.signUp(phoneNumber, password, attributeList, null, (err, result) => {
       const cognitoId = result.userSub;
-      if (!err) {
-        const existingUser = await UserRepository.findOneByPhoneNumber(phoneNumber);
-        if(!existingUser) {
-          createUser(phoneNumber, cognitoId).then((user) => {
-            res([user, null]);
-          });
-        } else {
-          existingUser.cognitoId = cognitoId;
-          setUserCognitoId(existingUser.userId, cognitoId, phoneNumber);
-          res([existingUser, null]);
-        }
-      } else {
-        res([null, err]);
+      if (err) {
+        rej(err);
       }
+      res(cognitoId);
     });
   });
+};
+
+
+const userNotExist = ({ message }) => {
+  return message.includes('User does not exist.');
 };
 
 const signIn = (phoneNumber) => {
@@ -64,23 +41,18 @@ const signIn = (phoneNumber) => {
   const cognitoUser = getCognitoUser(phoneNumber);
   cognitoUser.setAuthenticationFlowType('CUSTOM_AUTH');
 
-  return new Promise((res) => {
+  return new Promise((res, rej) => {
     cognitoUser.initiateAuth(authenticationDetails, {
       customChallenge: async ({ USERNAME: cognitoId }) => {
-        const user = await UserRepository.findOneByCognitoId(cognitoId);
-        if (!user) {
-          const existingUser = await UserRepository.findOneByPhoneNumber(phoneNumber);
-          if(!existingUser) {
-            createUser(phoneNumber, cognitoId);
-          } else if(!existingUser.cognitoId) {
-            setUserCognitoId(existingUser.userId, cognitoId, phoneNumber);
-          }
-        }
         const session = cognitoUser.Session;
-        res([{ session }, null]);
+        res({ session, cognitoId });
       },
       onFailure: (err) => {
-        res([null, err]);
+        if (userNotExist(err)) {
+          res({ cognitoId: null });
+        } else {
+          rej(err);
+        }
       },
     });
   });
@@ -90,21 +62,20 @@ const verifyCode = (phoneNumber, answerChallenge, session) => {
   const cognitoUser = getCognitoUser(phoneNumber);
   cognitoUser.setAuthenticationFlowType('CUSTOM_AUTH');
   cognitoUser.Session = session;
-  return new Promise((res) => {
+  return new Promise((res, rej) => {
     cognitoUser.sendCustomChallengeAnswer(answerChallenge.toString(), {
       customChallenge() {
         const currentSession = cognitoUser.Session;
-        res([{ session: currentSession }]);
+        res({ session: currentSession });
       },
       onSuccess: (result) => {
         const tokens = getTokenFromSession(result);
-        UserRepository.findOneByPhoneNumber(phoneNumber).then((user) => {
-          const { bucket } = config.aws;
-          res([{ user, tokens, bucketName: bucket }]);
-        });
+        const { bucket: bucketName } = config.aws;
+
+        res({ tokens, bucketName });
       },
       onFailure: (err) => {
-        res([null, err]);
+        rej(err);
       },
     });
   });
@@ -113,10 +84,13 @@ const verifyCode = (phoneNumber, answerChallenge, session) => {
 const refreshAuth = (refreshToken) => {
   const cognitoUser = getCognitoUser('');
   const cognitoRefreshToken = getCognitoRefreshToken(refreshToken);
-  return new Promise((res) => {
+  return new Promise((res, rej) => {
     cognitoUser.refreshSession(cognitoRefreshToken, (err, session) => {
       const tokens = session ? getTokenFromSession(session) : null;
-      res([tokens, err]);
+      if (err) {
+        rej(err);
+      }
+      res(tokens);
     });
   });
 };
