@@ -27,13 +27,12 @@ const signUp = async (phoneNumber) => {
     if (!existingUser) {
       const user = await createUser(phoneNumber, cognitoId);
       return user;
-    } else {
-      existingUser.cognitoId = cognitoId;
-      setUserCognitoId(existingUser.userId, cognitoId, phoneNumber);
-      return existingUser;
     }
+    existingUser.cognitoId = cognitoId;
+    setUserCognitoId(existingUser.userId, cognitoId, phoneNumber);
+    return existingUser;
   } catch (err) {
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err?.message || JSON.stringify(err));
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err ? err.message : JSON.stringify(err));
   }
 };
 
@@ -49,17 +48,17 @@ const signIn = async (phoneNumber) => {
     if (!cognitoId) {
       await signUp(phoneNumber);
       return signIn(phoneNumber);
-    } else {
-      const user = await UserRepository.findOneByCognitoId(cognitoId);
-      if (!user) {
-        const existingUser = await UserRepository.findOneByPhoneNumber(phoneNumber);
-        if (!existingUser) {
-          createUser(phoneNumber, cognitoId);
-        } else if (!existingUser.cognitoId) {
-          setUserCognitoId(existingUser.userId, cognitoId, phoneNumber);
-        }
+    }
+    const user = await UserRepository.findOneByCognitoId(cognitoId);
+    if (!user) {
+      const existingUser = await UserRepository.findOneByPhoneNumber(phoneNumber);
+      if (!existingUser) {
+        createUser(phoneNumber, cognitoId);
+      } else if (!existingUser.cognitoId) {
+        setUserCognitoId(existingUser.userId, cognitoId, phoneNumber);
       }
     }
+
     return { session };
   } catch (err) {
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err.message || JSON.stringify(err));

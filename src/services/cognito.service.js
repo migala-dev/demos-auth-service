@@ -31,7 +31,6 @@ const signUp = (phoneNumber) => {
   });
 };
 
-
 const userNotExist = ({ message }) => {
   return message.includes('User does not exist.');
 };

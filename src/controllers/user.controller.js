@@ -4,18 +4,18 @@ const catchAsync = require('../shared/utils/catchAsync');
 const { userService } = require('../services');
 
 const updateUser = catchAsync(async (req, res) => {
-  const cognitoId = req.user.username;
-  const user = await userService.updateUserByCognitoId(cognitoId, req.body);
-  res.send(user);
+  const { user } = req.user.username;
+  const userUpdated = await userService.updateUser(user, req.body);
+  res.send(userUpdated);
 });
 
 const updateProfilePicture = catchAsync(async (req, res) => {
   if (!req.file) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Avatar image required');
   }
-  const cognitoId = req.user.username;
-  const user = await userService.uploadAvatarImage(cognitoId, req.file);
-  res.send(user);
+  const { user } = req.user.username;
+  const userUpdated = await userService.uploadAvatarImage(user, req.file);
+  res.send(userUpdated);
 });
 
 module.exports = {

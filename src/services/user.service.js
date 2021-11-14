@@ -1,49 +1,39 @@
-const httpStatus = require('http-status');
-const { User } = require('../shared/models');
 const { UserRepository } = require('../shared/repositories');
-const ApiError = require('../shared/utils/ApiError');
 const removeS3File = require('../shared/utils/removeS3File');
 
 /**
- * Update user by cognito id
- * @param {ObjectId} cognitoId
+ * Update user
+ * @param {User} user
  * @param {Object} updateBody
  * @returns {Promise<User>}
  */
-const updateUserByCognitoId = async (cognitoId, { name }) => {
-  const user = await UserRepository.findOneByCognitoId(cognitoId);
-  if (!user) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
-  }
+const updateUser = async (user, { name }) => {
+  await UserRepository.updateName(user.userId, name);
   Object.assign(user, { name });
-  const userToUpdate = new User();
-  userToUpdate.name = name;
-  await UserRepository.save(user.userId, userToUpdate);
+
   return user;
 };
 
 /**
  * Upload an avatar image
- * @param {String} cognitoId
+ * @param {User} user
  * @param {File} file
  * @returns {Promise<String>}
  */
-const uploadAvatarImage = async (cognitoId, file) => {
-  const user = await UserRepository.findOneByCognitoId(cognitoId);
-  if (!user) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
-  }
+const uploadAvatarImage = async (user, file) => {
   const oldImageKey = user.profilePictureKey;
   const profilePictureKey = file.key;
+
   Object.assign(user, { profilePictureKey });
-  const userToUpdate = new User();
-  userToUpdate.profilePictureKey = profilePictureKey;
-  await UserRepository.save(user.userId, userToUpdate);
+
+  await UserRepository.updatePictureKey(user.userId, profilePictureKey);
+
   removeS3File(oldImageKey);
+
   return user;
 };
 
 module.exports = {
-  updateUserByCognitoId,
+  updateUser,
   uploadAvatarImage,
 };
