@@ -48,7 +48,7 @@ CREATE TABLE members (
     space_id uuid not null,
     user_id uuid not null,
     invitation_status integer,
-    role varchar(10),
+    role varchar(30) not null,
     name varchar(255),
     expired_at timestamp,
     deleted boolean DEFAULT false,
