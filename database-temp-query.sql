@@ -67,3 +67,105 @@ CREATE TRIGGER set_timestamp_members
 BEFORE UPDATE ON members
 FOR EACH ROW
 EXECUTE FUNCTION trigger_set_timestamp();
+
+CREATE TABLE cache (
+    cache_id uuid DEFAULT uuid_generate_v4 (),
+    user_id uuid  NOT NULL,
+    entity_name varchar(255),
+    event_name varchar(255),
+    data varchar(MAX),
+    created_at timestamp not null default CURRENT_TIMESTAMP,
+	PRIMARY KEY(cache_id)
+);
+
+
+CREATE TABLE manifesto (
+    manifesto_id uuid DEFAULT uuid_generate_v4 (),
+    title varchar(255) not null,
+    content varchar(MAX) not null,
+    option_type varchar(30) not null,
+    space_id uuid not null,
+    created_by uuid not null,
+    created_at timestamp not null default CURRENT_TIMESTAMP,
+    updated_by uuid not null,
+    updated_at timestamp not null default CURRENT_TIMESTAMP,
+	PRIMARY KEY(manifesto_id),
+    FOREIGN KEY(space_id) REFERENCES spaces(space_id),
+    FOREIGN KEY(created_by) REFERENCES users(user_id),
+    FOREIGN KEY(updated_by) REFERENCES users(user_id)
+);
+
+CREATE TRIGGER set_timestamp_manifesto
+BEFORE UPDATE ON manifesto
+FOR EACH ROW
+EXECUTE FUNCTION trigger_set_timestamp();
+
+
+CREATE TABLE manifesto_option (
+    manifesto_option_id uuid DEFAULT uuid_generate_v4 (),
+    title varchar(255) not null,
+    manifesto_id uuid not null,
+    deleted boolean DEFAULT false,
+    created_by uuid not null,
+    created_at timestamp not null default CURRENT_TIMESTAMP,
+    updated_by uuid not null,
+    updated_at timestamp not null default CURRENT_TIMESTAMP,
+	PRIMARY KEY(manifesto_option_id),
+    FOREIGN KEY(manifesto_id) REFERENCES manifesto(manifesto_id),
+    FOREIGN KEY(created_by) REFERENCES users(user_id),
+    FOREIGN KEY(updated_by) REFERENCES users(user_id)
+);
+
+CREATE TRIGGER set_timestamp_manifesto_option
+BEFORE UPDATE ON manifesto_option
+FOR EACH ROW
+EXECUTE FUNCTION trigger_set_timestamp();
+
+CREATE TABLE proposal (
+    proposal_id uuid DEFAULT uuid_generate_v4 (),
+    manifesto_id uuid not null,
+    status varchar(30) not null,
+    progress_status varchar(30) not null,
+    expired_at timestamp not null,
+    created_by uuid not null,
+    created_at timestamp not null default CURRENT_TIMESTAMP,
+    updated_by uuid not null,
+    updated_at timestamp not null default CURRENT_TIMESTAMP,
+	PRIMARY KEY(proposal_id),
+    FOREIGN KEY(manifesto_id) REFERENCES manifesto(manifesto_id),
+    FOREIGN KEY(created_by) REFERENCES users(user_id),
+    FOREIGN KEY(updated_by) REFERENCES users(user_id)
+);
+
+CREATE TRIGGER set_timestamp_proposal
+BEFORE UPDATE ON proposal
+FOR EACH ROW
+EXECUTE FUNCTION trigger_set_timestamp();
+
+
+CREATE TABLE proposal_participation (
+    proposal_participation_id uuid DEFAULT uuid_generate_v4 (),
+    proposal_id uuid not null,
+    user_id uuid not null,
+	PRIMARY KEY(proposal_participation_id),
+    FOREIGN KEY(proposal_id) REFERENCES proposal(proposal_id),
+    FOREIGN KEY(user_id) REFERENCES users(user_id)
+);
+
+
+CREATE TABLE proposal_vote (
+    proposal_vote_id uuid DEFAULT uuid_generate_v4 (),
+    proposal_id uuid not null,
+    user_hash varchar(16) not null,
+    manifesto_option_id uuid not null,
+    created_at timestamp not null default CURRENT_TIMESTAMP,
+    updated_at timestamp not null default CURRENT_TIMESTAMP,
+	PRIMARY KEY(proposal_participation_id),
+    FOREIGN KEY(proposal_id) REFERENCES proposal(proposal_id),
+    FOREIGN KEY(manifesto_option_id) REFERENCES manifesto_option(manifesto_option_id)
+);
+
+CREATE TRIGGER set_timestamp_proposal_vote
+BEFORE UPDATE ON proposal_vote
+FOR EACH ROW
+EXECUTE FUNCTION trigger_set_timestamp();
