@@ -12,7 +12,7 @@ const uploadAvatarS3 = multer({
       cb(null, { fieldName: file.fieldname });
     },
     key: (req, file, cb) => {
-      const cognitoId = req.user.username;
+      const cognitoId = req.user.cognitoId;
       const splitFileName = file.originalname.split('.');
       const extension = splitFileName[splitFileName.length - 1];
       const randomNumber = new Date().getTime().toString().substr(9);

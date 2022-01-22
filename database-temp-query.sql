@@ -73,7 +73,7 @@ CREATE TABLE cache (
     user_id uuid  NOT NULL,
     entity_name varchar(255),
     event_name varchar(255),
-    data varchar(MAX),
+    data text,
     created_at timestamp not null default CURRENT_TIMESTAMP,
 	PRIMARY KEY(cache_id)
 );
@@ -81,8 +81,8 @@ CREATE TABLE cache (
 
 CREATE TABLE manifesto (
     manifesto_id uuid DEFAULT uuid_generate_v4 (),
-    title varchar(255) not null,
-    content varchar(MAX) not null,
+    title varchar(255),
+    content text,
     option_type varchar(30) not null,
     space_id uuid not null,
     created_by uuid not null,
@@ -160,7 +160,7 @@ CREATE TABLE proposal_vote (
     manifesto_option_id uuid not null,
     created_at timestamp not null default CURRENT_TIMESTAMP,
     updated_at timestamp not null default CURRENT_TIMESTAMP,
-	PRIMARY KEY(proposal_participation_id),
+	PRIMARY KEY(proposal_vote_id),
     FOREIGN KEY(proposal_id) REFERENCES proposal(proposal_id),
     FOREIGN KEY(manifesto_option_id) REFERENCES manifesto_option(manifesto_option_id)
 );
