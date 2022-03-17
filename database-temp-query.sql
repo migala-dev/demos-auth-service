@@ -83,7 +83,7 @@ CREATE TABLE manifesto (
     manifesto_id uuid DEFAULT uuid_generate_v4 (),
     title varchar(255),
     content text,
-    option_type varchar(30) not null,
+    option_type integer not null,
     space_id uuid not null,
     created_by uuid not null,
     created_at timestamp not null default CURRENT_TIMESTAMP,
@@ -124,9 +124,10 @@ EXECUTE FUNCTION trigger_set_timestamp();
 CREATE TABLE proposal (
     proposal_id uuid DEFAULT uuid_generate_v4 (),
     manifesto_id uuid not null,
-    status varchar(30) not null,
-    progress_status varchar(30) not null,
-    expired_at timestamp not null,
+    status integer not null,
+    progress_status integer not null default 0,
+    space_id uuid not null,
+    expired_at timestamp,
     created_by uuid not null,
     created_at timestamp not null default CURRENT_TIMESTAMP,
     updated_by uuid not null,
@@ -147,17 +148,22 @@ CREATE TABLE proposal_participation (
     proposal_participation_id uuid DEFAULT uuid_generate_v4 (),
     proposal_id uuid not null,
     user_id uuid not null,
+    member_id uuid not null,
+    participated boolean default false,
 	PRIMARY KEY(proposal_participation_id),
     FOREIGN KEY(proposal_id) REFERENCES proposal(proposal_id),
-    FOREIGN KEY(user_id) REFERENCES users(user_id)
+    FOREIGN KEY(user_id) REFERENCES users(user_id),
+    FOREIGN KEY(member_id) REFERENCES members(member_id),
 );
 
 
 CREATE TABLE proposal_vote (
     proposal_vote_id uuid DEFAULT uuid_generate_v4 (),
     proposal_id uuid not null,
-    user_hash varchar(16) not null,
-    manifesto_option_id uuid not null,
+    user_hash varchar(255) not null,
+    manifesto_option_id uuid,
+    in_favor boolean,
+    null_vote_comment text,
     created_at timestamp not null default CURRENT_TIMESTAMP,
     updated_at timestamp not null default CURRENT_TIMESTAMP,
 	PRIMARY KEY(proposal_vote_id),
