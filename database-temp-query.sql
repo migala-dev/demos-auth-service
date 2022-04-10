@@ -175,3 +175,37 @@ CREATE TRIGGER set_timestamp_proposal_vote
 BEFORE UPDATE ON proposal_vote
 FOR EACH ROW
 EXECUTE FUNCTION trigger_set_timestamp();
+
+CREATE TABLE manifesto_comment (
+    manifesto_comment_id uuid DEFAULT uuid_generate_v4 (),
+    content text,
+    manifesto_comment_parent_id uuid not null,
+    deleted boolean DEFAULT false,
+    created_at timestamp not null default CURRENT_TIMESTAMP,
+    created_by_member uuid not null,
+    updated_at timestamp not null default CURRENT_TIMESTAMP,
+	PRIMARY KEY(manifesto_comment_id),
+    FOREIGN KEY(manifesto_comment_parent_id) REFERENCES manifesto(manifesto_id),
+    FOREIGN KEY(created_by_member) REFERENCES members(member_id)
+);
+
+CREATE TRIGGER set_timestamp_manifesto_comment
+BEFORE UPDATE ON manifesto_comment
+FOR EACH ROW
+EXECUTE FUNCTION trigger_set_timestamp();
+
+
+CREATE TABLE manifesto_comment_vote (
+    manifesto_comment_vote_id uuid DEFAULT uuid_generate_v4 (),
+    user_id uuid not null,
+    upvote boolean DEFAULT false,
+    created_at timestamp not null default CURRENT_TIMESTAMP,
+    updated_at timestamp not null default CURRENT_TIMESTAMP,
+	PRIMARY KEY(manifesto_comment_vote_id),
+    FOREIGN KEY(user_id) REFERENCES users(user_id)
+);
+
+CREATE TRIGGER set_timestamp_manifesto_comment_vote
+BEFORE UPDATE ON manifesto_comment_vote
+FOR EACH ROW
+EXECUTE FUNCTION trigger_set_timestamp();
