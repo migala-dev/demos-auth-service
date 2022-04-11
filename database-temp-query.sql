@@ -179,7 +179,7 @@ EXECUTE FUNCTION trigger_set_timestamp();
 CREATE TABLE manifesto_comment (
     manifesto_comment_id uuid DEFAULT uuid_generate_v4 (),
     content text,
-    manifesto_comment_parent_id uuid not null,
+    manifesto_comment_parent_id uuid,
     deleted boolean DEFAULT false,
     created_at timestamp with time zone not null default CURRENT_TIMESTAMP,
     created_by_member uuid not null,
