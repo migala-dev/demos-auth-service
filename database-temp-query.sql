@@ -199,11 +199,13 @@ EXECUTE FUNCTION trigger_set_timestamp();
 
 CREATE TABLE manifesto_comment_vote (
     manifesto_comment_vote_id uuid DEFAULT uuid_generate_v4 (),
+    manifesto_comment_id uuid not null,
     user_id uuid not null,
     upvote boolean DEFAULT false,
     created_at timestamp with time zone not null default CURRENT_TIMESTAMP,
     updated_at timestamp with time zone not null default CURRENT_TIMESTAMP,
 	PRIMARY KEY(manifesto_comment_vote_id),
+    FOREIGN KEY(manifesto_comment_id) REFERENCES manifesto_comment(manifesto_comment_id),
     FOREIGN KEY(user_id) REFERENCES users(user_id)
 );
 
