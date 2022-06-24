@@ -93,10 +93,10 @@ const signIn = async (phoneNumber) => {
  */
 const verifyCode = async (phoneNumber, answerChallenge, session) => {
   try {
-    const { tokens, bucketName } = await cognitoService.verifyCode(phoneNumber, answerChallenge, session);
+    const { tokens, bucketName, session: currentSession } = await cognitoService.verifyCode(phoneNumber, answerChallenge, session);
     const user = await UserRepository.findOneByPhoneNumber(phoneNumber);
 
-    return { tokens, bucketName, user };
+    return { tokens, bucketName, user, session: currentSession };
   } catch (err) {
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err.message || JSON.stringify(err));
   }
