@@ -127,6 +127,7 @@ CREATE TABLE proposal (
     status integer not null,
     progress_status integer not null default 0,
     space_id uuid not null,
+    expire_on_hours integer not null,
     expired_at varchar(255),
     insufficient_votes boolean,
     created_by uuid not null,
