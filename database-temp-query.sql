@@ -218,3 +218,23 @@ CREATE TRIGGER set_timestamp_manifesto_comment_vote
 BEFORE UPDATE ON manifesto_comment_vote
 FOR EACH ROW
 EXECUTE FUNCTION trigger_set_timestamp();
+
+
+CREATE TABLE suggestion (
+    suggestion_id uuid DEFAULT uuid_generate_v4 (),
+    manifesto_id uuid not null,
+    status integer not null,
+    created_by uuid not null,
+    created_at TIMESTAMP WITH TIME ZONE not null default CURRENT_TIMESTAMP,
+    updated_by uuid not null,
+    updated_at TIMESTAMP WITH TIME ZONE not null default CURRENT_TIMESTAMP,
+	PRIMARY KEY(suggestion_id),
+    FOREIGN KEY(manifesto_id) REFERENCES manifesto(manifesto_id),
+    FOREIGN KEY(created_by) REFERENCES users(user_id),
+    FOREIGN KEY(updated_by) REFERENCES users(user_id)
+);
+
+CREATE TRIGGER set_timestamp_proposal
+BEFORE UPDATE ON suggestion
+FOR EACH ROW
+EXECUTE FUNCTION trigger_set_timestamp();
