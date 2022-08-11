@@ -127,6 +127,7 @@ CREATE TABLE proposal (
     status integer not null,
     progress_status integer not null default 0,
     space_id uuid not null,
+    expire_on_hours integer not null,
     expired_at varchar(255),
     insufficient_votes boolean,
     created_by uuid not null,
@@ -216,5 +217,25 @@ CREATE TABLE manifesto_comment_vote (
 
 CREATE TRIGGER set_timestamp_manifesto_comment_vote
 BEFORE UPDATE ON manifesto_comment_vote
+FOR EACH ROW
+EXECUTE FUNCTION trigger_set_timestamp();
+
+
+CREATE TABLE suggestion (
+    suggestion_id uuid DEFAULT uuid_generate_v4 (),
+    manifesto_id uuid not null,
+    status integer not null,
+    created_by uuid not null,
+    created_at TIMESTAMP WITH TIME ZONE not null default CURRENT_TIMESTAMP,
+    updated_by uuid not null,
+    updated_at TIMESTAMP WITH TIME ZONE not null default CURRENT_TIMESTAMP,
+	PRIMARY KEY(suggestion_id),
+    FOREIGN KEY(manifesto_id) REFERENCES manifesto(manifesto_id),
+    FOREIGN KEY(created_by) REFERENCES users(user_id),
+    FOREIGN KEY(updated_by) REFERENCES users(user_id)
+);
+
+CREATE TRIGGER set_timestamp_proposal
+BEFORE UPDATE ON suggestion
 FOR EACH ROW
 EXECUTE FUNCTION trigger_set_timestamp();
