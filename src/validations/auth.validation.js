@@ -39,8 +39,15 @@ const refreshTokens = {
   }),
 };
 
+const userDevice = {
+  body: Joi.object().keys({
+    deviceId: Joi.string().required(),
+  }),
+};
+
 module.exports = {
   login,
   verifyCode,
   refreshTokens,
+  userDevice,
 };

@@ -21,7 +21,7 @@ const httpStatus = require('http-status');
 const cognitoService = require('./cognito.service');
 const ApiError = require('../shared/utils/ApiError');
 const { User } = require('../shared/models');
-const { UserRepository } = require('../shared/repositories');
+const { UserRepository, UserDeviceRepository } = require('../shared/repositories');
 
 const createUser = (phoneNumber, cognitoId) => {
   const user = new User();
@@ -113,10 +113,21 @@ const refreshAuth = async (refreshToken) => {
   } catch (err) {
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err.message || JSON.stringify(err));
   }
+}
+/**
+ * Register UserDevice
+ * @param {string} userId
+ * @param {string} deviceId
+ * @returns {Promise<UserDevice>}
+ */
+const registerUserDevice = async (userId, deviceId) => {
+  const userDevice = await UserDeviceRepository.createOrUpdate(userId, deviceId);
+  return userDevice;
 };
 
 module.exports = {
   signIn,
   verifyCode,
   refreshAuth,
+  registerUserDevice
 };

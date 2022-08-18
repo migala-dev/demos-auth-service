@@ -39,8 +39,16 @@ const refreshTokens = catchAsync(async (req, res) => {
   res.status(httpStatus.OK).send(tokens);
 });
 
+const registerUserDevice = catchAsync(async (req, res) => {
+  const { user } = req;
+  const { deviceId } = req.body;
+  const response = await authService.registerUserDevice(user.userId, deviceId);
+  res.status(httpStatus.OK).send(response);
+});
+
 module.exports = {
   login,
   verifyCode,
   refreshTokens,
+  registerUserDevice
 };

@@ -24,6 +24,21 @@ BEFORE UPDATE ON users
 FOR EACH ROW
 EXECUTE FUNCTION trigger_set_timestamp();
 
+CREATE TABLE user_devices (
+    user_device_id uuid DEFAULT uuid_generate_v4 (),
+    user_id  uuid not null,
+    device_id varchar(255) not null,
+    created_at TIMESTAMP WITH TIME ZONE not null default CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE not null default CURRENT_TIMESTAMP,
+	PRIMARY KEY(user_device_id),
+    FOREIGN KEY(user_id) REFERENCES users(user_id)
+);
+
+CREATE TRIGGER set_timestamp_user_devices
+BEFORE UPDATE ON user_devices
+FOR EACH ROW
+EXECUTE FUNCTION trigger_set_timestamp();
+
 CREATE TABLE spaces (
     space_id uuid DEFAULT uuid_generate_v4 (),
     name varchar(255) not null,
@@ -56,7 +71,7 @@ CREATE TABLE members (
     updated_by uuid not null,
     created_at TIMESTAMP WITH TIME ZONE not null default CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE not null default CURRENT_TIMESTAMP,
-	PRIMARY KEY(members_id),
+	PRIMARY KEY(member_id),
     FOREIGN KEY(space_id) REFERENCES spaces(space_id),
     FOREIGN KEY(user_id) REFERENCES users(user_id),
     FOREIGN KEY(created_by) REFERENCES users(user_id),

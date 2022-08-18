@@ -18,6 +18,7 @@
 */
 
 const express = require('express');
+const auth = require('../../shared/middlewares/auth');
 const validate = require('../../shared/middlewares/validate');
 const authValidation = require('../../validations/auth.validation');
 const authController = require('../../controllers/auth.controller');
@@ -27,6 +28,7 @@ const router = express.Router();
 router.post('/login', validate(authValidation.login), authController.login);
 router.post('/verify-code', validate(authValidation.verifyCode), authController.verifyCode);
 router.post('/refresh-tokens', validate(authValidation.refreshTokens), authController.refreshTokens);
+router.post('/user-device', auth(), validate(authValidation.userDevice), authController.registerUserDevice);
 
 module.exports = router;
 
